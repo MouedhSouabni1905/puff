@@ -1,5 +1,5 @@
 # Define a tree data structure object with nodes wich correspond to a pair of one character and one weight
-%tree_origin = ();
+@tree_origin = ['pseudo-EOF'];
 
 # Subroutine for reading in the file and determining the weights of each word and adding them to the tree structures
 %char_weight = ();
@@ -50,13 +50,33 @@ sub min {
 sub create_binary_tree {
   my @vals = values %char_weight;
   my @ks = keys %char_weight;
-  my @children = ();
+  %node = {};
+  @children = [];
+  $i=0;
   while ( $ks != 0 ) {
+    
     my $min_index = min(@vals);
+
+    unless ($i==0) {
+      my $parent = @vals[$min_index];
+
+    }
+
     # add it to the children array
-    # delete it from the ks array
+    push(@children,$ks[$min_index]);
+    # delete it from the ks and vals array
+    splice(@ks,$min_index,1);
+    splice(@vals,$min_index,1);
     # do that a 2nd time
+    my $min_index = min(@vals);
+    push(@children,$ks[$min_index]);
+    splice(@ks,$min_index,1);
+    splice(@vals,$min_index,1);
+    # Create ref for the children array
+    $childref = \@children;
+    $i++;
   }
+
 }
 # Subroutine for decompressing, parses the header to decode the file
 # Add a custom pseudo-EOF signature 8 bits that won't be used in the encoding
