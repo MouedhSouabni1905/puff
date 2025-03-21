@@ -1,8 +1,9 @@
 # Define a tree data structure object with nodes wich correspond to a pair of one character and one weight
-@tree_origin = ['pseudo-EOF'];
+%root = {'first'=>'EOF'};
+@tree_buffer = (\%root);
 
 # Subroutine for reading in the file and determining the weights of each word and adding them to the tree structures
-%char_weight = ();
+%char_weight;
 
 sub rd_weights {
   open(FILE, '<', @_[0]) or die "Cannot open file $filename for reading: $!";
@@ -50,31 +51,17 @@ sub min {
 sub create_binary_tree {
   my @vals = values %char_weight;
   my @ks = keys %char_weight;
-  %node = {};
-  @children = [];
+  my %current_node;
+  my %previous_node;
+  my @children;
   $i=0;
   while ( $ks != 0 ) {
-    
-    my $min_index = min(@vals);
-
-    unless ($i==0) {
-      my $parent = @vals[$min_index];
-
-    }
-
-    # add it to the children array
-    push(@children,$ks[$min_index]);
-    # delete it from the ks and vals array
-    splice(@ks,$min_index,1);
-    splice(@vals,$min_index,1);
-    # do that a 2nd time
-    my $min_index = min(@vals);
-    push(@children,$ks[$min_index]);
-    splice(@ks,$min_index,1);
-    splice(@vals,$min_index,1);
-    # Create ref for the children array
-    $childref = \@children;
-    $i++;
+    # Find the minimum and add it to @children
+    # Remove from @vals and @ks
+    # Repeat for the 2nd minimum value
+    # Put them together in the current node
+    # If previous node is not empty, make it point to previous_node's (go back to check huffing algorithm)
+    # Assign them to previous_node
   }
 
 }
