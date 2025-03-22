@@ -1,12 +1,9 @@
-# Define a tree data structure object with nodes wich correspond to a pair of one character and one weight
-%root = {'first'=>'EOF'};
-@tree_buffer = (\%root);
-
 # Subroutine for reading in the file and determining the weights of each word and adding them to the tree structures
-%char_weight;
 
 sub rd_weights {
-  open(FILE, '<', @_[0]) or die "Cannot open file $filename for reading: $!";
+  my %char_weight;
+  my $filename=shift;
+  open(FILE, '<', $filename) or die "Cannot open file $filename for reading: $!";
   # @_[0] is the first element in the list of arguments
   foreach $line ( <FILE> ) {
     my @chars = map { ord } split //, $line;
@@ -18,10 +15,10 @@ sub rd_weights {
       $char_weight{$char}=1;
     }
   }
-
+  %char_weight;
 }
 
-rd_weights('LICENSE');
+# rd_weights('LICENSE');
 
 # Test -----------------------------------
 #@weights = values %char_weight;
@@ -36,7 +33,7 @@ rd_weights('LICENSE');
 
 # Subroutine defined for the tree object that brings the nodes together to create de encoding tree
 sub min {
-  my @vals = @_[0];
+  my @vals = shift;
   my $m=0;
   my $i=0;
   foreach $x ( @vals ) {
@@ -48,22 +45,53 @@ sub min {
   $m;
 }
 
-sub create_binary_tree {
-  my @vals = values %char_weight;
-  my @ks = keys %char_weight;
-  my %current_node;
-  my %previous_node;
-  my @children;
-  $i=0;
-  while ( $ks != 0 ) {
-    # Find the minimum and add it to @children
-    # Remove from @vals and @ks
-    # Repeat for the 2nd minimum value
-    # Put them together in the current node
-    # If previous node is not empty, make it point to previous_node's (go back to check huffing algorithm)
-    # Assign them to previous_node
+# Subroutines that creates new nodes from previous nodes
+# Calculates the sum of the weights of the two lowest-weighted
+# nodes and adds them together into a new node and adds that
+# node to an array of nodes which is returned by the funtion
+# !!! Make sure the input argument is a reference !!!
+sub create_nodes_array {
+  $input_arg = shift;
+  my @weights;
+  my @elements;
+  my @current_nodes;
+  if (ref($input_arg) eq 'HASH') {
+    @weights = values %$input_arg;
+    @elements = keys %$input_arg;
+  } elsif (ref($input_arg) eq 'ARRAY') {
+    @input_arr = @$input_arg;
+    $i=0;
+    while ($i<$input_arr) {
+      $curr_hashref = @input_arr[$i];
+      %curr_hash = %$curr_hashref;
+      push(@weights,$curr_hash{'weight'});
+      $i++;
+    }
+    @elements = @input_arr;
   }
-
+  while ( @elements != 0 ) {
+    # Find the minimum and add it to @children
+    my %current_node;
+    my $curr_node_weight;
+    my @children;
+    my $min = min(@vals);
+    push(@children,\$elements[$min]);
+    $curr_node_weight+=$weights[$min];
+    # Remove from @elements and @weights
+    splice(@weights,$min,1);
+    splice(@elements,$min,1);
+    # Repeat for the 2nd minimum value
+    push(@children,\$elements[$min]);
+    $curr_node_weight+=$weights[$min];
+    splice(@weights,$min,1);
+    splice(@elements,$min,1);
+    # Put them in the current node
+    $current_node{'children'}=\@children;
+    $current_node{'weight'}=$curr_node_weight;
+    # Add it to the list of current nodes
+    push(@current_nodes,\%current_node);
+  }
+  @current_node;
 }
 # Subroutine for decompressing, parses the header to decode the file
 # Add a custom pseudo-EOF signature 8 bits that won't be used in the encoding
