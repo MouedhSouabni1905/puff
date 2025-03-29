@@ -91,8 +91,23 @@ sub create_nodes_array {
     # Add it to the list of current nodes
     push(@current_nodes,\%current_node);
   }
-  @current_node;
+  @current_nodes;
 }
+
+# Subroutine for iterating each line of the tree from the bottom up starting from the weights
+# Returns the last two trees, which will be put in the second branch of the root of the tree
+sub iterate_tree {
+  my @arr = shift;
+  my @new_arr = create_nodes_array(@arr);
+  if ( $new_arr == 2 ) {
+    @new_arr;
+  } else {
+    iterate_tree(@new_arr);
+  }
+}
+
+
+
 # Subroutine for decompressing, parses the header to decode the file
 # Add a custom pseudo-EOF signature 8 bits that won't be used in the encoding
 # Put the tree data structure in format as a header
