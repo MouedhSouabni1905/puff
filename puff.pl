@@ -18,19 +18,6 @@ sub rd_weights {
   %char_weight;
 }
 
-# rd_weights('LICENSE');
-
-# Test -----------------------------------
-#@weights = values %char_weight;
-#@chars = keys %char_weight;
-#$i=0;
-#$size=@chars;
-#while ($i<$size) {
-#  print "$chars[$i] => $weights[$i]\n";
-#  $i++;
-#}
-# ----------------------------------------
-
 # Subroutine defined for the tree object that brings the nodes together to create de encoding tree
 sub min {
   my @vals = shift;
@@ -96,9 +83,10 @@ sub create_nodes_array {
 
 # Subroutine for iterating each line of the tree from the bottom up starting from the weights
 # Returns the last two trees, which will be put in the second branch of the root of the tree
+# !!! Make sure input is a reference !!!
 sub iterate_tree {
-  my @arr = shift;
-  my @new_arr = create_nodes_array(@arr);
+  my $input_ref = shift;
+  my @new_arr = create_nodes_array($input_ref);
   if ( $new_arr == 2 ) {
     @new_arr;
   } else {
@@ -106,7 +94,51 @@ sub iterate_tree {
   }
 }
 
+sub element_in_arr {
+  my $el = shift;
+  my @arr = shift;
+  my $i = 0;
+  my $found = 0;
+  while ( $i<$arr ) {
+    if ( $el == $arr[$i] ) {
+      $found = 1;
+      break;
+    }
+    $i++;
+  }
+  $found;
+}
 
+# Prints the tree
+# The input is the node of the 2nd branch
+@visited_nodes;
+@parent_nodes;
+# To add next time: add current node to parent nodes at each call,
+# if the node was visited from backtracking (from the left child),
+# then add it to visited_nodes and remove it from parent_nodes
+# then pproceed to right_child
+# If current node is in visited nodes, then go to parent node
+sub print_tree {
+  my $input_node_ref = shift;
+  my %current_node = %$input_node_ref;
+  my $children_ref = $current_node{'children'};
+  my @children = %$children_ref;
+  my $left_child = @children[0];
+  my $right_child = @children[1];
+  if ( element_in_arr($left_child,@visited_nodes)==1 ) {
+    print_tree($right_child);
+  } elsif ( ref($left_child) == 'SCALAR' ) {
+    print "$$left_child\t$$right_child\t\t";
+  } else {
+    print_tree($left_child);
+  }
+}
+
+sub main {
+
+}
+
+main();
 
 # Subroutine for decompressing, parses the header to decode the file
 # Add a custom pseudo-EOF signature 8 bits that won't be used in the encoding
