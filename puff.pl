@@ -126,22 +126,28 @@ sub print_tree {
   my $left_child = @children[0];
   my $right_child = @children[1];
   if ( element_in_arr($input_node_ref,visited_nodes) ) {
-      print_tree(pop(@parent_nodes));
+    if ( $parent_nodes==0 ) {
+      return 0;
+    }
+    $parent_node=pop(@parent_nodes);
+    print_tree($parent_node);
   } elsif ( element_in_arr(\$left_child,@visited_nodes)==1 ) {
-      push(\%current_node,@visited_nodes);
+      push(@visited_nodes,\%current_node);
       print_tree($right_child);
+      push(@parent_nodes,$input_node_ref);
   } elsif ( ref($left_child) == 'SCALAR' ) {
       print "$$left_child\t$$right_child\t\t";
   } else {
       print_tree($left_child);
+      push(@parent_nodes,$input_node_ref);
   }
-  push($input_node_ref,@parent_nodes);
 }
 
 sub main {
-  %initial=rd_weights('test.txt');
-  @second=iterate_tree(\%initial);
-  %root{'children'}=\@second;
+  my %initial=rd_weights('test.txt');
+  my @second=iterate_tree(\%initial);
+  my %root;
+  $root{'children'}=\@second;
   print_tree(\%root);
 }
 
