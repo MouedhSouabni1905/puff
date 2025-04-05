@@ -90,7 +90,7 @@ sub iterate_tree {
   if ( $new_arr == 2 ) {
     @new_arr;
   } else {
-    iterate_tree(@new_arr);
+    iterate_tree(\@new_arr);
   }
 }
 
@@ -125,17 +125,24 @@ sub print_tree {
   my @children = %$children_ref;
   my $left_child = @children[0];
   my $right_child = @children[1];
-  if ( element_in_arr($left_child,@visited_nodes)==1 ) {
-    print_tree($right_child);
+  if ( element_in_arr($input_node_ref,visited_nodes) ) {
+      print_tree(pop(@parent_nodes));
+  } elsif ( element_in_arr(\$left_child,@visited_nodes)==1 ) {
+      push(\%current_node,@visited_nodes);
+      print_tree($right_child);
   } elsif ( ref($left_child) == 'SCALAR' ) {
-    print "$$left_child\t$$right_child\t\t";
+      print "$$left_child\t$$right_child\t\t";
   } else {
-    print_tree($left_child);
+      print_tree($left_child);
   }
+  push($input_node_ref,@parent_nodes);
 }
 
 sub main {
-
+  %initial=rd_weights('test.txt');
+  @second=iterate_tree(\%initial);
+  %root{'children'}=\@second;
+  print_tree(\%root);
 }
 
 main();
